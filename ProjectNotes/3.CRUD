@@ -1,0 +1,116 @@
+# CRUD 
+create read update delete
+
+# create Room
+
+> to create room we make another template which will take required data to make a room
+
+> so we created room_form 
+we extend main.html inside it and make a form which will ask for required data 
+
+* when you use form to post data we reqires a token to add inside form
+    <form>
+    {% csrf_token %} // for security purpose
+    </form>
+
+> after creating template we will create a funtion to render it inside views.py
+
+> after creating function we have to create a url in urls.py
+
+> now use this link/url to our template
+
+all is set now build your form it can be done manualy or by model form
+we are using model form
+
+# building model form
+
+> create forms.py inside baseapp
+
+> now inside forms.py import formmodel and since we want to work on room so import room
+
+> create a class for room form which inherits from modelform
+
+> create a meta class inside it which takes meta data from room
+
+  class RoomForm(ModelForm): 
+      class Meta:            
+          model = Room
+          fields = '__all__' 
+
+
+> we import this RoomForm in views.py pass it to context using var to send it for render
+
+    form = RoomForm
+    context = {'form':form}
+
+> after this we can use this in are room_form.html inside form
+
+# posting data from form
+
+to post data from form we use an if state inside creatRoom fn
+
+    form = RoomForm
+
+    if request.method == 'POST':
+        form = RoomForm(request.POST)
+        if form.is_valid:
+            form.save()
+            return redirect('home')
+    
+    context ....
+    return render ....
+
+form.save() will save data to database and redirect home redirect user to home after form submission
+
+> now using this we can create a room 
+
+but when you create see its ordering it will appear last and want it to fast 
+
+> so we create a meta class inside room model for ordering
+
+
+    class meta:
+        ordering = ['-updated', '-created']
+    
+    # updated means who updated first will appear first
+    # -updated means who updated last .....
+
+
+# update Room
+
+> to do so we create an updateRoom fn just like createRoom but with request parameter we use pk to find out which room is to be updated
+
+def updateRoom(request, pk):
+    room = Room.objects.get(id=pk)
+    form = RoomForm(instance=room)
+
+    if request.method == 'POST':
+        form = RoomForm(request.POST, instance=room)
+        if form.is_valid:
+            form.save()
+            return redirect('home')
+    
+    context = {'form':form}
+    return render(request, 'baseapp/room_form.html', context)
+
+# delete Room 
+
+> create another template for for delete room so 
+
+> delete_room.html again extends main.html now inside this create from
+
+> inside form csrf token, a para which ask for confirmation, a link to go back and a submit button to delete finally.
+
+<form method="POST" action="">
+    {% csrf_token %}
+    <p>Are you sure to delete "{{obj}}" ?</p>
+    <a href="{{request.META.HTTP_REFERER}}">Go Back</a>
+    <input type="submit" value="Confirm">
+</form>
+
+now follow previous process again create a function for deleteRoom and a url 
+
+> now in deleteRoom we don't need RoomForm, just get Room with id and if request method is post delete room and return redirect home
+
+otherwise context = {'obj':room}
+return render(request, path to delete_room, context)

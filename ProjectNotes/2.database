@@ -1,0 +1,101 @@
+# database 
+user1
+username = naveen1422
+pass = #Np@1938
+email = 279
+
+user2
+username = sharma 
+pass = #Np@1938
+email = sharma@gmail.com
+
+> python manage.py migrate
+
+this will create a folder inside baseapp and default database for us
+
+> we will create are data base in models.py in baseapp
+
+# creating class or table for database
+> we created Room class and a funtion
+
+class Room(models.Model):
+    # host = 
+    # topic = 
+    name = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True)
+    # participants = 
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+def __str__(self):
+    return self.name
+    
+
+# apply changes to database
+now after everychanges in database run 
+
+> python manage.py makemigrations
+
+this will create a folder inside migrations folder in baseapp
+
+now to apply these migrations 
+
+> py manage.py migrate
+
+this will update database
+
+now when you open data you won't be able to see this so to see this we do something in admin.py
+
+from .models import Room
+
+admin.site.register(Room)
+
+> now to take data from data base or we can say Room class(table) that we just formed 
+
+> we go to views.py and upate home and room fn
+
+def home(request):
+    rooms = Room.objects.all()
+    context = {'rooms':rooms}
+    return render(request, 'baseapp/home.html', context) 
+
+def room(request, pk):
+    room = Room.objects.get(id=pk)
+    context = {'room':room}
+    return render(request, 'baseapp/room.html', context)
+
+# database relations (one to many / many to one)
+
+    class Message(models.Model):
+        # user = 
+        room = models.ForeignKey(Room, on_delete=models.CASCADE)
+        # models.SET_NULL -> if room deleted don't delete message 
+        # models.CASCADE -> if room deleted delete all messages
+
+> here inside Message class we used Room so here room is parent  
+
+# pre made class User
+
+django has User class already so we import it and use directly in Message
+
+> now we create topic class since room is created under a topic that means topic will parent of room and that means we have to make topic class before room  
+
+and some extra changes in room 
+
+* now import these class to admin and register them to admin site, User is already given so no need to import and register
+
+
+> now it's time to update database with new code so run commands 
+
+> now fill database with some random values and use them as you wish
+
+like we did in home.html
+
+    {% for room in rooms %}
+    <div>
+        <span>@{{room.host.username}}</span>
+        <h3>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h3>
+        <small>{{room.topic.name}}</small>
+        <hr>
+    </div>
+    {% endfor %}

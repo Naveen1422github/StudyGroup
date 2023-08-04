@@ -1,0 +1,152 @@
+base = baseapp
+env = myEnv
+templates = mytemplates 
+
+always remember to activate env/scripts/activate after resarting the computer
+
+To create base app ( for the first time only )
+ - python .\manage.py startapp baseapp    
+
+To run server 
+ - python .\manage.py runserver
+
+# views and URLs
+
+after activate env and running the server 
+
+> went to setting.py in studygroup and updated baseapp.apps.BaseappConfig in INSTALLED_APPS list
+
+> went to urls.py in studygroup created to urls there home and room but this is bad practice so we deleted them
+
+> so went to views in baseapp create and home room fn then made urls.py for baseapp there create list for urlpatters to save url 
+
+> now in urls.py in studygrp we import include with and in urlpatters list add path which for '' redirects to baseapp.urls using include
+
+# templates 
+
+it is basically a folder where i'm going to store my html files
+
+> create folder named mytemplates in main dir
+> now tell django there is folder named mytemplates to do so
+> open settings.py -> TEMPLATES -> DIRS there write
+BASE_DIR / 'mytemplates' //base_dir is the main dir
+
+> created home.html and room.html inside mytemplates 
+
+now
+
+> in views in baseapp upated home room fn from httpresoponce to render
+
+> now instead of particul sting we can render whole html files
+
+# template inheritance
+
+> like we can create a navbar.html and can used that code in home and room and in others just by writing 
+{% include 'navbar.html' %} 
+
+now this also can be repeating so
+
+> we create main.html and inside it we write html code and in 
+body we write
+and 
+{%inlude 'navbar.html' %}
+.
+.
+{%block content%}
+
+
+{%endblock%}
+
+
+> now we can extend this in room, home or other html files
+
+{%extends 'main.html' %}
+{%block content%}
+all content of home or room will be inside it
+{%endblock%}
+
+# template tags
+
+> {% used for any python command %}
+
+{% but always has a closing tag%}
+
+ex- like for if there is endif
+
+> {{used to variable}}
+
+ex- my name is {{myname}}
+
+> now if we have a list of dictionary or somethging like rooms we can pass it to rander function and now we can use it in any html file using these tags
+
+// inside views.py
+
+    rooms = [
+        {'id':1, 'name':'python is funn'},
+        {'id':2, 'name':'wanna play django wango'},
+        {'id':3, 'name':'i am using this'},
+    ]
+
+    def home(request):
+        context = {'rooms':rooms}
+        return render(request, 'home.html', context) 
+
+// inside home.html
+
+
+    <div>
+        {% for room in rooms %}
+        <div>
+            <h3>{{room.id}} -- {{room.name}}</h3>
+        </div>
+        {% endfor %}
+    </div>
+
+// now there can we multiple templates when we are making an app so we seperate templates like for baseapp we create another templates folder inside baseapp but name should be  "templates" and inside this folder we have to create another folder of name of our base app which baseapp so
+
+> templates/baseapp // this should be like this
+
+> now put home and room inside it and change their path in views.py
+
+# dynamic url writing
+we can dynamicly assign url for we use
+> <int/str/..:variable>
+
+we applied this in room url so
+
+> in url.py update path of room url
+
+'room/<str:pk>'  pk is variable
+
+now since we are using a variable we have to pass to room funtion so
+
+> in views.py in room fn add another paramerter with request
+
+def room(request, pk)
+
+> no in home.html file we made these dynamic urls
+
+<h3>{{room.id}} -- <a href="room/{{room.id}}">{{room.name}}</a></h3>
+
+// it was inside a for loop which travers room in rooms
+
+> for each id we can pass different results like we did in this
+
+    def room(request, pk):
+        room = None
+
+        for i in rooms:
+            if (i['id'] == int(pk)):
+                room = i
+            context = {'room':room}
+        return render(request, 'baseapp/room.html', context)
+        
+// ans inside room.html updated
+
+<h2>{{room.name}}</h2>
+
+# why url naming is important
+
+so in general if we change a url we have to change every place where we used it, so better we use url name and where ever we use it we use its url name to do so  we write
+
+{% url 'room' room.id %}
